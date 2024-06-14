@@ -1,93 +1,158 @@
 import java.util.*;
 
+// import javax.swing.text.AbstractDocument.BranchElement;
+
 public class booth {
 
-    // for positive numbers only
+    static Scanner input = new Scanner(System.in);
+    static int QR_input, BR_input;
+
+    static String strBR;
+    static StringBuffer BR;
+
+    static StringBuffer BR_2s_comp;
+
+    static String strQR;
+    static String QR;
+
+    static StringBuffer AC;
+    static char Qn1 = '0', Qn;
+    static int sc = 4;
+
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-        int QR, BR;
-        int Qn, Qn1, temp = 0;
 
-        String strAC = "00000";
         System.out.print("Multiplicand = ");
-        BR = input.nextInt();
+        BR_input = input.nextInt();
         System.out.print("Multiplier = ");
-        QR = input.nextInt();
+        QR_input = input.nextInt();
 
-        String rawStrQR = Integer.toBinaryString(Math.abs(QR));
-        StringBuffer strbufQR = new StringBuffer(rawStrQR);
 
-        String strQR = setBinaryNum(strbufQR);
+        if(BR_input  > 7 || QR_input > 7){
+            sc = 5;
+        }
+            
+        strBR = Integer.toBinaryString(BR_input);
+        strBR = String.format(sc == 5 ?  "%5s" : "%4s", strBR).replace(' ', '0');
+            
+        BR = new StringBuffer(strBR);
 
-        String ACQR = strAC.concat(strQR);
-        System.out.println(ACQR);
-        /////////////
+        BR_2s_comp = getTwosComplement(BR);
 
-        for (int SC = 5; SC > 0; SC--) {
-            System.out.println("LOOP " + SC);
-            Qn1 = temp;
-            Qn = Character.getNumericValue(ACQR.charAt(9));
-            temp = Qn;
+        strQR = Integer.toBinaryString(QR_input);
+        QR = String.format(sc == 5 ? "%5s" :"%4s", strQR).replace(' ', '0');
+        // QR = new StringBuffer(strQR);
+        Qn = QR.charAt(QR.length() - 1);
 
-            System.out.println(Qn);
-            System.out.println(Qn1);
-            System.out.println(temp);
+        AC = new StringBuffer(sc == 5 ? "00000" : "0000");
 
-            if (Qn != Qn1) {
+        System.out.println(BR_2s_comp);
 
-                if (Qn == 1) {
-                    int temp2 = (Integer.parseInt(ACQR.substring(0, 4), 2) - BR);
+        // getNextOperation();
 
-                    System.out.println("SUB LOGIC strAC"+ temp2);
+        for (int i = 0; i < sc; i++) {
+            System.out.println("Pass: " + (i + 1));
+            getNextOperation();
+            System.out.println();
+        }
+
+        System.out.println(AC.append(QR));
+        System.out.println(Integer.parseInt(AC.toString(), 2));
+    }
+
+    static void getNextOperation() {
+        if ((Qn + "" + Qn1).equals("01")) {
+            binaryAdder(true);
+        } else if ((Qn + "" + Qn1).equals("10")) {
+            binaryAdder(false);
+        } else {
+            arithmaticShiftRight();
+        }
+
+    }
+
+    static void binaryAdder(boolean add) {
+
+        boolean carry = false;
+        String AC_instance = new StringBuilder(AC.toString()).reverse().toString();
+        String BR_instance = add ? new StringBuilder(BR.toString()).reverse().toString() : new StringBuilder(BR_2s_comp.toString()).reverse().toString();
+        int n = AC_instance.length() > BR_instance.length() ? AC_instance.length() : BR_instance.length();
+        char[] result = new char[n];
+
+        for (int i = 0; i < n; i++) {
+            if (AC_instance.charAt(i) == BR_instance.charAt(i)) {
+                if (AC_instance.charAt(i) == '1') {
+                    if (carry) {
+                        result[i] = '1';
+                        carry = true;
+                    } else {
+                        result[i] = '0';
+                        carry = true;
+                    }
+                } else {
+                    if (carry) {
+                        result[i] = '1';
+                        carry = false;
+                    } else {
+                        result[i] = '0';
+                    }
                 }
-
-                else {
-                    strAC = Integer.toBinaryString(Integer.parseInt(ACQR.substring(0, 4), 2) + BR);
-                    System.out.println("ADD LOGIC str AC : "+ ACQR);
+            } else {
+                if (carry) {
+                    result[i] = '0';
+                    carry = true;
+                } else {
+                    result[i] = '1';
                 }
             }
-
-            System.out.println("ashr");
-
-            ACQR = strAC.concat(strQR);
-            System.out.println("ACQRold : "+ACQR);
-            StringBuffer strbufACQR = new StringBuffer(ACQR);
-            String sign = strbufACQR.substring(0, 1); // ashr sign preservation
-
-            strbufACQR = ashr(ACQR); // ACQR updated
-
-            strbufACQR.deleteCharAt(0); // sign updated
-            strbufACQR.insert(0, sign);
-
-            ACQR = strbufACQR.toString(); // ACQR updated.
-            System.out.println("ACQR : "+ACQR);
-
         }
 
-        System.out.println("answer = " + ACQR);
-        // System.out.println(Integer.parseInt(ACQR,2));
-        input.close();
+        AC = new StringBuffer(new String(result)).reverse();
+        arithmaticShiftRight();
     }
 
-    static String setBinaryNum(StringBuffer strbuf) {
+    static void arithmaticShiftRight() {
 
-        for (; strbuf.length() < 5;) {
-            strbuf.insert(0, "0");
+        StringBuffer oldString = AC.append(QR);
+
+        StringBuffer shiftedString = new StringBuffer(oldString);
+
+        shiftedString.setCharAt(0, oldString.charAt(0));
+        Qn1 = oldString.charAt(oldString.length() - 1);
+        Qn = oldString.charAt(oldString.length() - 2);
+
+        for (int i = 1; i < oldString.length(); i++) {
+            shiftedString.setCharAt(i, oldString.charAt(i - 1));
         }
 
-        return strbuf.toString();
+        shiftedString.setLength(oldString.length());
+        System.out.println("oldString: " + oldString);
+        System.out.println("shifted: " + shiftedString);
 
+        QR = shiftedString.substring(sc ==5 ? 5 :4);
+        AC = new StringBuffer(shiftedString.substring(0, sc == 5 ? 5 : 4));
+
+        System.out.println("AC: " + AC);
+        System.out.println("QR: " + QR);
     }
 
-    static StringBuffer ashr(String str) {
-        StringBuffer strbuf = new StringBuffer(str);
+    static StringBuffer getTwosComplement(StringBuffer x) {
+        int n = x.length();
+        char[] twos_complement = new char[n];
+        boolean flag = false;
+        for (int i = n - 1; i >= 0; i--) {
+            if (!flag) {
+                if (x.charAt(i) == '1') {
+                    twos_complement[i] = '1';
+                    flag = true;
+                } else {
+                    twos_complement[i] = x.charAt(i);
+                }
+            } else {
+                twos_complement[i] = (x.charAt(i) == '0') ? '1' : '0';
+            }
 
-        for (int i = 0; i < 9; i++) {
-            char c = strbuf.charAt(0);
-            strbuf.append(c);
-            strbuf.deleteCharAt(0);
         }
-
-        return strbuf;
+        return new StringBuffer(new String(twos_complement));
     }
+
 }
