@@ -1,8 +1,7 @@
 import java.util.*;
 
 public class booth {
-
-    // for positive numbers only
+//for digits ranging -15 to 15
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
@@ -32,7 +31,7 @@ public class booth {
         String ACQR = strAC.concat(strQR); // works right
         StringBuffer strbufACQR = new StringBuffer(strAC.concat(strQR));
 
-        System.out.println("BR: " + strBR);
+        System.out.println("BR: " + strBR);  //output prep.
         System.out.println("QR: " + strQR);
         System.out.println("  SC    AC      QR");
 
@@ -75,6 +74,8 @@ public class booth {
 
         System.out.println("  " + "0" + "   " + ACQR.substring(0, 5) + "   " + ACQR.substring(5, 10));
         System.out.println("Result: " + ACQR);
+        System.out.println("Decimal: " + binarytoDecimal(ACQR));
+
         input.close();
     }
 
@@ -136,7 +137,7 @@ public class booth {
                 carry = 1;
                 ans.insert(0, 1);
             }
-            // throw error if its not 0,1,2 or 3,
+            
         }
         return ans.toString();
     }
@@ -169,4 +170,19 @@ public class booth {
         return ans.toString();
     }
 
+    static double binarytoDecimal (String A){
+        double radix=0,ans=0;
+       
+
+        for (int i = 10; i > 0; i--) {
+
+            StringBuffer tempA = new StringBuffer(A.substring(i - 1)); // one digit at a time in sequence from A
+            tempA.setLength(1);
+            
+            ans = ans + (Math.pow(2,radix)*Integer.parseInt(tempA.toString()));
+            radix++;
+    }
+    return ans;
+
+}
 }
