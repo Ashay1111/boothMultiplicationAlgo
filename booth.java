@@ -5,67 +5,85 @@ public class booth {
     // for positive numbers only
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        int QR, BR;
-        int Qn, Qn1, temp = 0;
+        
+        char Qn, Qn1,tempCh='0',sign;
 
-        String strAC = "00000";
-        System.out.print("Multiplicand = ");
-        BR = input.nextInt();
+        String strAC = "00000"; //AC
+
+        System.out.print("Multiplicand = "); //inputs
+        int BR = input.nextInt();
         System.out.print("Multiplier = ");
-        QR = input.nextInt();
+        int QR = input.nextInt();
 
-        String rawStrQR = Integer.toBinaryString(Math.abs(QR));
-        StringBuffer strbufQR = new StringBuffer(rawStrQR);
+        StringBuffer strbufQR = new StringBuffer(Integer.toBinaryString(Math.abs(QR)));
+        StringBuffer strbufBR = new StringBuffer(Integer.toBinaryString(Math.abs(BR)));
 
-        String strQR = setBinaryNum(strbufQR);
+        
+        String strQR = setBinaryNum(strbufQR); //user-defined function
+        String strBR = setBinaryNum(strbufBR); //user-defined function
+        
+        //if negative
+        if(QR<0)  strQR = twoscomplement(strQR);
+        if(BR<0)  strBR = twoscomplement(strBR);
 
-        String ACQR = strAC.concat(strQR);
-        System.out.println(ACQR);
-        /////////////
+        String strCompBR = twoscomplement(strBR);
+
+        String ACQR = strAC.concat(strQR); //works right
+        StringBuffer strbufACQR = new StringBuffer(strAC.concat(strQR));
+        
+        System.out.println("BR: "+ strBR);
+        System.out.println("QR: "+ strQR);
+        System.out.println("  SC    AC      QR"); 
+        
 
         for (int SC = 5; SC > 0; SC--) {
-            System.out.println("LOOP " + SC);
-            Qn1 = temp;
-            Qn = Character.getNumericValue(ACQR.charAt(9));
-            temp = Qn;
+            //logic of booth.
+            System.out.println("  "+SC+"   "+ strAC+"   "+ strQR);
 
-            System.out.println(Qn);
-            System.out.println(Qn1);
-            System.out.println(temp);
+            Qn=ACQR.charAt(9);
+            Qn1 = tempCh;
+            
 
-            if (Qn != Qn1) {
+           
+               
+               
+            
 
-                if (Qn == 1) {
-                    int temp2 = (Integer.parseInt(ACQR.substring(0, 4), 2) - BR);
+            if(Qn == '0' && Qn1 == '1'){
+                strAC = (strbufACQR.substring(0,5)).toString();
+                strQR = (strbufACQR.substring(5)).toString();
 
-                    System.out.println("SUB LOGIC strAC"+ temp2);
-                }
+                strAC = binaryAdd(strAC, strBR);
 
-                else {
-                    strAC = Integer.toBinaryString(Integer.parseInt(ACQR.substring(0, 4), 2) + BR);
-                    System.out.println("ADD LOGIC str AC : "+ ACQR);
-                }
+                ACQR = strAC.concat(strQR);
             }
 
-            System.out.println("ashr");
+            else if(Qn == '1' && Qn1 == '0'){
+                strAC = (strbufACQR.substring(0,5)).toString();
+                strQR = (strbufACQR.substring(5)).toString();
 
-            ACQR = strAC.concat(strQR);
-            System.out.println("ACQRold : "+ACQR);
-            StringBuffer strbufACQR = new StringBuffer(ACQR);
-            String sign = strbufACQR.substring(0, 1); // ashr sign preservation
+                strAC = binaryAdd(strAC, strCompBR);
 
-            strbufACQR = ashr(ACQR); // ACQR updated
-
-            strbufACQR.deleteCharAt(0); // sign updated
+                ACQR = strAC.concat(strQR);
+            }
+         
+            //ashr
+            sign = ACQR.charAt(0);
+            strbufACQR = new StringBuffer(ACQR);
+            strbufACQR = ashr(strbufACQR);
+            strbufACQR.deleteCharAt(0);     
             strbufACQR.insert(0, sign);
+            ACQR = strbufACQR.toString();   //ACQR updated.
 
-            ACQR = strbufACQR.toString(); // ACQR updated.
-            System.out.println("ACQR : "+ACQR);
+
+            tempCh = Qn;
+
+            
 
         }
 
-        System.out.println("answer = " + ACQR);
-        // System.out.println(Integer.parseInt(ACQR,2));
+        System.out.println("  "+"0"+"   "+ ACQR.substring(0, 5)+"   "+ ACQR.substring(5, 10));
+        System.out.println("Result: "+ACQR);
         input.close();
     }
 
@@ -79,15 +97,85 @@ public class booth {
 
     }
 
-    static StringBuffer ashr(String str) {
+    static String ashr(String str) {
         StringBuffer strbuf = new StringBuffer(str);
 
         for (int i = 0; i < 9; i++) {
-            char c = strbuf.charAt(0);
-            strbuf.append(c);
+            strbuf.append(strbuf.charAt(0));
+            strbuf.deleteCharAt(0);
+        }
+
+        return strbuf.toString();
+    }
+    static StringBuffer ashr(StringBuffer strbuf) {
+        
+        for (int i = 0; i < 9; i++) {
+            strbuf.append(strbuf.charAt(0));
             strbuf.deleteCharAt(0);
         }
 
         return strbuf;
     }
+
+static String binaryAdd(String A, String B){
+    int c, carry=0;
+    StringBuffer ans = new StringBuffer("") ,strbufA= new StringBuffer(A), strbufB = new StringBuffer(B);
+    
+    for(int i=5; i>0; i--){ 
+        
+        StringBuffer tempA = new StringBuffer(strbufA.substring(i-1)); //one digit at a time in sequence from A
+        tempA.setLength(1);
+        
+        StringBuffer tempB = new StringBuffer(strbufB.substring(i-1)); //corresponding one digit at a time in sequence from B
+        tempB.setLength(1);
+
+        c = carry + Integer.parseInt(tempA.toString()) + Integer.parseInt(tempB.toString()); //binary addition
+         if(c==0){
+            carry = 0;
+            ans.insert(0, 0);
+            }
+         else if(c==1){
+            carry = 0;
+            ans.insert(0, 1);
+            }
+         else if(c==2){
+            carry = 1;
+            ans.insert(0, 0);
+            }
+         else if(c==3){
+            carry = 1;
+            ans.insert(0, 1);
+            }
+         //throw error if its not 0,1,2 or 3,
+    }
+      return ans.toString();
+}
+
+static String twoscomplement(String A){
+    StringBuffer ans = new StringBuffer("");
+    int flag=0;
+
+    for(int i=5;i>0;i--){
+
+    StringBuffer tempA = new StringBuffer(A.substring(i-1));
+    tempA.setLength(1);
+    int digit = Integer.parseInt(tempA.toString());
+
+    if(flag==0){ 
+    ans.insert(0,tempA.toString());
+    }
+
+    else{
+        if(digit==0) ans.insert(0, "1");
+        else ans.insert(0, "0");
+    }
+
+    if(digit == 1) flag++;
+
+
+    }
+    return ans.toString();
+}
+
+
 }
