@@ -37,7 +37,7 @@ public class booth {
 
         for (int SC = 5; SC > 0; SC--) {
             // logic of booth.
-            System.out.println("  " + SC + "   " + strAC + "   " + strQR);
+            System.out.println("  " + SC + "   " + ACQR.substring(0, 5) + "   " + ACQR.substring(5));
 
             Qn = ACQR.charAt(9);
             Qn1 = tempCh;
@@ -72,7 +72,7 @@ public class booth {
 
         }
 
-        System.out.println("  " + "0" + "   " + ACQR.substring(0, 5) + "   " + ACQR.substring(5, 10));
+        System.out.println("  " + "0" + "   " + ACQR.substring(0, 5) + "   " + ACQR.substring(5));
         System.out.println("Result: " + ACQR);
         System.out.println("Decimal: " + binarytoDecimal(ACQR));
 
